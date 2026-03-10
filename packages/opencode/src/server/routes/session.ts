@@ -19,28 +19,6 @@ import { lazy } from "../../util/lazy"
 
 const log = Log.create({ service: "server" })
 
-function cookie(input?: string) {
-  if (!input) return undefined
-  for (const item of input.split(";")) {
-    const [k, ...rest] = item.trim().split("=")
-    if (k !== "opencode_user") continue
-    const raw = rest.join("=")
-    try {
-      const value = decodeURIComponent(raw)
-      return value.trim() || undefined
-    } catch {
-      return raw.trim() || undefined
-    }
-  }
-  return undefined
-}
-
-function user(c: { req: { header: (name: string) => string | undefined } }) {
-  const header = c.req.header("x-opencode-user")?.trim()
-  if (header) return header
-  return cookie(c.req.header("cookie"))
-}
-
 export const SessionRoutes = lazy(() =>
   new Hono()
     .get(
@@ -785,7 +763,7 @@ export const SessionRoutes = lazy(() =>
         return stream(c, async (stream) => {
           const sessionID = c.req.valid("param").sessionID
           const body = c.req.valid("json")
-          const name = user(c)
+          const name = c.req.header("x-opencode-user")?.trim() || undefined
           const msg = await SessionPrompt.prompt({ ...body, sessionID, ...(name ? { name } : {}) })
           stream.write(JSON.stringify(msg))
         })
@@ -818,7 +796,7 @@ export const SessionRoutes = lazy(() =>
         return stream(c, async () => {
           const sessionID = c.req.valid("param").sessionID
           const body = c.req.valid("json")
-          const name = user(c)
+          const name = c.req.header("x-opencode-user")?.trim() || undefined
           SessionPrompt.prompt({ ...body, sessionID, ...(name ? { name } : {}) })
         })
       },
@@ -856,7 +834,7 @@ export const SessionRoutes = lazy(() =>
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
         const body = c.req.valid("json")
-        const name = user(c)
+        const name = c.req.header("x-opencode-user")?.trim() || undefined
         const msg = await SessionPrompt.command({ ...body, sessionID, ...(name ? { name } : {}) })
         return c.json(msg)
       },
@@ -889,7 +867,7 @@ export const SessionRoutes = lazy(() =>
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
         const body = c.req.valid("json")
-        const name = user(c)
+        const name = c.req.header("x-opencode-user")?.trim() || undefined
         const msg = await SessionPrompt.shell({ ...body, sessionID, ...(name ? { name } : {}) })
         return c.json(msg)
       },
