@@ -49,94 +49,6 @@ globalThis.AI_SDK_LOG_WARNINGS = false
 
 export namespace Server {
   const log = Log.create({ service: "server" })
-  const key = "opencode_user"
-
-  function cookie(input?: string) {
-    if (!input) return undefined
-    for (const item of input.split(";")) {
-      const [k, ...rest] = item.trim().split("=")
-      if (k !== key) continue
-      const raw = rest.join("=")
-      try {
-        const value = decodeURIComponent(raw)
-        return value.trim() || undefined
-      } catch {
-        return raw.trim() || undefined
-      }
-    }
-    return undefined
-  }
-
-  function user(c: { req: { header: (name: string) => string | undefined } }) {
-    const header = c.req.header("x-opencode-user")?.trim()
-    if (header) return header
-    return cookie(c.req.header("cookie"))
-  }
-
-  function page(next: string) {
-    return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Join OpenCode</title>
-  <style>
-    :root { color-scheme: light; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at top, #f5f7fb 0%, #e9edf5 45%, #dbe3ef 100%);
-      font-family: ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
-      color: #1f2937;
-    }
-    main {
-      width: min(420px, calc(100vw - 2rem));
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid #d1d9e6;
-      border-radius: 14px;
-      padding: 1.25rem;
-      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.16);
-    }
-    h1 { margin: 0 0 0.4rem; font-size: 1.15rem; }
-    p { margin: 0 0 1rem; color: #4b5563; font-size: 0.95rem; }
-    label { display: block; margin-bottom: 0.35rem; font-weight: 600; }
-    input {
-      width: 100%;
-      border: 1px solid #c7d2e2;
-      border-radius: 9px;
-      font-size: 0.95rem;
-      padding: 0.62rem 0.72rem;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 0.8rem;
-      width: 100%;
-      border: 0;
-      border-radius: 9px;
-      font-weight: 600;
-      padding: 0.65rem 0.8rem;
-      color: #fff;
-      background: linear-gradient(120deg, #2563eb, #0f766e);
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Join this OpenCode server</h1>
-    <p>Choose a display name so messages are labeled in shared sessions.</p>
-    <form method="post" action="/-/identity">
-      <input type="hidden" name="next" value="${next}" />
-      <label for="name">Display name</label>
-      <input id="name" name="name" maxlength="64" autocomplete="nickname" required />
-      <button type="submit">Continue</button>
-    </form>
-  </main>
-</body>
-</html>`
-  }
 
   export const Default = lazy(() => createApp({}))
 
@@ -213,31 +125,6 @@ export namespace Server {
           },
         }),
       )
-      .use(async (c, next) => {
-        const value = user(c)
-        if (value && !c.req.header("x-opencode-user")) {
-          c.req.raw.headers.set("x-opencode-user", value)
-        }
-        return next()
-      })
-      .use(async (c, next) => {
-        if (c.req.method !== "GET") return next()
-        if (c.req.path !== "/") return next()
-        const accept = c.req.header("accept") ?? ""
-        if (!accept.includes("text/html")) return next()
-        if (user(c)) return next()
-        return c.html(page(c.req.path), 200)
-      })
-      .post("/-/identity", async (c) => {
-        const body = await c.req.parseBody()
-        const text = typeof body.name === "string" ? body.name.trim() : ""
-        const name = text.slice(0, 64)
-        if (!name) return c.redirect("/")
-        const raw = typeof body.next === "string" ? body.next.trim() : "/"
-        const next = raw.startsWith("/") ? raw : "/"
-        c.header("Set-Cookie", `${key}=${encodeURIComponent(name)}; Path=/; Max-Age=31536000; SameSite=Lax`)
-        return c.redirect(next)
-      })
       .route("/global", GlobalRoutes())
       .put(
         "/auth/:providerID",
