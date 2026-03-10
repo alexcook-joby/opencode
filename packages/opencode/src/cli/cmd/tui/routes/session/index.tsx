@@ -1245,6 +1245,7 @@ function UserMessage(props: {
   const color = createMemo(() => local.agent.color(props.message.agent))
   const queuedFg = createMemo(() => selectedForeground(theme, color()))
   const metadataVisible = createMemo(() => queued() || ctx.showTimestamps())
+  const name = createMemo(() => props.message.name?.trim())
 
   const compaction = createMemo(() => props.parts.find((x) => x.type === "compaction"))
 
@@ -1273,6 +1274,13 @@ function UserMessage(props: {
             flexShrink={0}
           >
             <text fg={theme.text}>{text()?.text}</text>
+            <Show when={name()}>
+              <box paddingBottom={1}>
+                <text fg={theme.textMuted}>
+                  <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {name()} </span>
+                </text>
+              </box>
+            </Show>
             <Show when={files().length}>
               <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>

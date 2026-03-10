@@ -361,6 +361,7 @@ export namespace MessageV2 {
       })
       .optional(),
     agent: z.string(),
+    name: z.string().optional(),
     model: z.object({
       providerID: z.string(),
       modelID: z.string(),

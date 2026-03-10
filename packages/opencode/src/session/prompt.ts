@@ -99,6 +99,7 @@ export namespace SessionPrompt {
       })
       .optional(),
     agent: z.string().optional(),
+    name: z.string().optional(),
     noReply: z.boolean().optional(),
     tools: z
       .record(z.string(), z.boolean())
@@ -973,6 +974,7 @@ export namespace SessionPrompt {
       },
       tools: input.tools,
       agent: agent.name,
+      name: input.name,
       model,
       system: input.system,
       format: input.format,
@@ -1464,6 +1466,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
   export const ShellInput = z.object({
     sessionID: Identifier.schema("session"),
     agent: z.string(),
+    name: z.string().optional(),
     model: z
       .object({
         providerID: z.string(),
@@ -1506,6 +1509,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       },
       role: "user",
       agent: input.agent,
+      name: input.name,
       model: {
         providerID: model.providerID,
         modelID: model.modelID,
@@ -1715,6 +1719,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     messageID: Identifier.schema("message").optional(),
     sessionID: Identifier.schema("session"),
     agent: z.string().optional(),
+    name: z.string().optional(),
     model: z.string().optional(),
     arguments: z.string(),
     command: z.string(),
@@ -1874,6 +1879,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       messageID: input.messageID,
       model: userModel,
       agent: userAgent,
+      name: input.name,
       parts,
       variant: input.variant,
     })) as MessageV2.WithParts

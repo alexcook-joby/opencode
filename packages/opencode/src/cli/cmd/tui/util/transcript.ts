@@ -44,7 +44,7 @@ export function formatMessage(msg: UserMessage | AssistantMessage, parts: Part[]
   let result = ""
 
   if (msg.role === "user") {
-    result += `## User\n\n`
+    result += `## User${msg.name ? ` (${msg.name})` : ""}\n\n`
   } else {
     result += formatAssistantHeader(msg, options.assistantMetadata)
   }
