@@ -179,7 +179,9 @@ The opencode server exposes the following APIs.
 | `POST` | `/session/:id/command`            | Execute a slash command                 | body: `{ messageID?, agent?, model?, name?, command, arguments }`, returns `{ info: `<a href={typesUrl}>Message</a>`, parts: `<a href={typesUrl}>Part[]</a>`}`               |
 | `POST` | `/session/:id/shell`              | Run a shell command                     | body: `{ agent, model?, name?, command }`, returns `{ info: `<a href={typesUrl}>Message</a>`, parts: `<a href={typesUrl}>Part[]</a>`}`                                       |
 
-Attached clients can also send `x-opencode-user` to label user messages. This is the header used by `opencode attach` mode.
+`name?` is optional in message, command, and shell request bodies. If omitted, messages are sent without a user display name.
+
+Attached clients can also send `x-opencode-user` to label user messages. Header values are trimmed and capped to 64 characters. `opencode attach` sends this header only when `--name` is provided.
 
 ---
 

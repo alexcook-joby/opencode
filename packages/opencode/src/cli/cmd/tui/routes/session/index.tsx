@@ -1275,14 +1275,20 @@ function UserMessage(props: {
           >
             <text fg={theme.text}>{text()?.text}</text>
             <Show when={name()}>
-              <box paddingBottom={1}>
+              <box paddingTop={1}>
                 <text fg={theme.textMuted}>
-                  <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {name()} </span>
+                  <span style={{ bg: theme.backgroundElement, fg: theme.text, bold: true }}> {name()} </span>
                 </text>
               </box>
             </Show>
             <Show when={files().length}>
-              <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
+              <box
+                flexDirection="row"
+                paddingBottom={metadataVisible() ? 1 : 0}
+                paddingTop={name() ? 0 : 1}
+                gap={1}
+                flexWrap="wrap"
+              >
                 <For each={files()}>
                   {(file) => {
                     const bg = createMemo(() => {

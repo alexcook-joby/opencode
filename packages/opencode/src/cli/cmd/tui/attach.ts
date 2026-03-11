@@ -6,13 +6,6 @@ import { TuiConfig } from "@/config/tui"
 import { Instance } from "@/project/instance"
 import { existsSync } from "fs"
 
-function identity(input?: string) {
-  const value = input?.trim()
-  if (value) return value
-  const fallback = process.env.USER ?? process.env.USERNAME
-  return fallback?.trim() || undefined
-}
-
 export const AttachCommand = cmd({
   command: "attach <url>",
   describe: "attach to a running opencode server",
@@ -72,9 +65,7 @@ export const AttachCommand = cmd({
           return args.dir
         }
       })()
-      const name =
-        identity(args.name) ??
-        (!process.stdin.isTTY ? undefined : identity(await UI.input("Display name (optional): ")))
+      const name = args.name?.trim() || undefined
       const headers = (() => {
         const password = args.password ?? process.env.OPENCODE_SERVER_PASSWORD
         if (!password && !name) return undefined

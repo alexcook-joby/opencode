@@ -76,14 +76,16 @@ opencode web --port 4096 --hostname 0.0.0.0
 opencode attach http://10.20.30.40:4096
 ```
 
+User display names are optional for attached clients. A name is only sent when you pass `--name`, with no fallback from `USER`/`USERNAME` and no interactive name prompt.
+
 #### Flags
 
-| Flag         | Short | Description                           |
-| ------------ | ----- | ------------------------------------- |
-| `--dir`      |       | Working directory to start TUI in     |
-| `--name`     |       | Display name for this attached client |
-| `--password` |       | Server password for basic auth        |
-| `--session`  | `-s`  | Session ID to continue                |
+| Flag         | Short | Description                                 |
+| ------------ | ----- | ------------------------------------------- |
+| `--dir`      |       | Working directory to start TUI in           |
+| `--name`     |       | Optional display name to send with messages |
+| `--password` |       | Server password for basic auth              |
+| `--session`  | `-s`  | Session ID to continue                      |
 
 ---
 

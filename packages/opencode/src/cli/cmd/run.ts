@@ -28,13 +28,6 @@ import { BashTool } from "../../tool/bash"
 import { TodoWriteTool } from "../../tool/todo"
 import { Locale } from "../../util/locale"
 
-function identity(input?: string) {
-  const value = input?.trim()
-  if (value) return value
-  const fallback = process.env.USER ?? process.env.USERNAME
-  return fallback?.trim() || undefined
-}
-
 type ToolProps<T extends Tool.Info> = {
   input: Tool.InferParameters<T>
   metadata: Tool.InferMetadata<T>
@@ -665,9 +658,7 @@ export const RunCommand = cmd({
     }
 
     if (args.attach) {
-      const name =
-        identity(args.name) ??
-        (!process.stdin.isTTY ? undefined : identity(await UI.input("Display name (optional): ")))
+      const name = args.name?.trim() || undefined
       const headers = (() => {
         const password = args.password ?? process.env.OPENCODE_SERVER_PASSWORD
         if (!password && !name) return undefined
