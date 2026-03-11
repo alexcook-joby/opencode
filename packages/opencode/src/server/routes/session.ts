@@ -1,4 +1,4 @@
-import { Hono } from "hono"
+import { Hono, type Context } from "hono"
 import { stream } from "hono/streaming"
 import { describeRoute, validator, resolver } from "hono-openapi"
 import z from "zod"
@@ -18,6 +18,13 @@ import { errors } from "../error"
 import { lazy } from "../../util/lazy"
 
 const log = Log.create({ service: "server" })
+
+function headerName(c: Context) {
+  const value = c.req.header("x-opencode-user")?.trim()
+  if (!value) return undefined
+  const cut = value.slice(0, 64)
+  return cut || undefined
+}
 
 export const SessionRoutes = lazy(() =>
   new Hono()
@@ -763,7 +770,7 @@ export const SessionRoutes = lazy(() =>
         return stream(c, async (stream) => {
           const sessionID = c.req.valid("param").sessionID
           const body = c.req.valid("json")
-          const name = c.req.header("x-opencode-user")?.trim() || undefined
+          const name = headerName(c)
           const msg = await SessionPrompt.prompt({ ...body, sessionID, ...(name ? { name } : {}) })
           stream.write(JSON.stringify(msg))
         })
@@ -796,7 +803,7 @@ export const SessionRoutes = lazy(() =>
         return stream(c, async () => {
           const sessionID = c.req.valid("param").sessionID
           const body = c.req.valid("json")
-          const name = c.req.header("x-opencode-user")?.trim() || undefined
+          const name = headerName(c)
           SessionPrompt.prompt({ ...body, sessionID, ...(name ? { name } : {}) })
         })
       },
@@ -834,7 +841,7 @@ export const SessionRoutes = lazy(() =>
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
         const body = c.req.valid("json")
-        const name = c.req.header("x-opencode-user")?.trim() || undefined
+        const name = headerName(c)
         const msg = await SessionPrompt.command({ ...body, sessionID, ...(name ? { name } : {}) })
         return c.json(msg)
       },
@@ -867,7 +874,7 @@ export const SessionRoutes = lazy(() =>
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
         const body = c.req.valid("json")
-        const name = c.req.header("x-opencode-user")?.trim() || undefined
+        const name = headerName(c)
         const msg = await SessionPrompt.shell({ ...body, sessionID, ...(name ? { name } : {}) })
         return c.json(msg)
       },

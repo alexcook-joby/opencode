@@ -213,6 +213,21 @@ describe("transcript", () => {
       expect(result).toContain("Hello")
     })
 
+    test("escapes user name", () => {
+      const msg: UserMessage = {
+        id: "msg_123",
+        sessionID: "ses_123",
+        role: "user",
+        name: "Jane [team]",
+        agent: "build",
+        model: { providerID: "anthropic", modelID: "claude-sonnet-4-20250514" },
+        time: { created: 1000000 },
+      }
+      const parts: Part[] = [{ id: "p1", sessionID: "ses_123", messageID: "msg_123", type: "text", text: "Hello" }]
+      const result = formatMessage(msg, parts, options)
+      expect(result).toContain("## User (Jane \\\[team\\])")
+    })
+
     test("formats assistant message with metadata", () => {
       const msg: AssistantMessage = {
         id: "msg_123",

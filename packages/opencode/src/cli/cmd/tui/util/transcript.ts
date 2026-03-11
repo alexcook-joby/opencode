@@ -44,7 +44,7 @@ export function formatMessage(msg: UserMessage | AssistantMessage, parts: Part[]
   let result = ""
 
   if (msg.role === "user") {
-    result += `## User${msg.name ? ` (${msg.name})` : ""}\n\n`
+    result += `## User${msg.name ? ` (${escape(msg.name)})` : ""}\n\n`
   } else {
     result += formatAssistantHeader(msg, options.assistantMetadata)
   }
@@ -54,6 +54,10 @@ export function formatMessage(msg: UserMessage | AssistantMessage, parts: Part[]
   }
 
   return result
+}
+
+function escape(name: string) {
+  return name.replace(/[\r\n\\`*_{}\[\]()#+\-.!|]/g, "\\$&")
 }
 
 export function formatAssistantHeader(msg: AssistantMessage, includeMetadata: boolean): string {
